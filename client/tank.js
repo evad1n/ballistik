@@ -54,9 +54,13 @@ class Tank {
         pop();
     }
 
-    // Returns the position vector for the end of the barrel
-    bulletPosition() {
-
+    /**
+     * Returns the position vector for the end of the barrel
+     * 
+     * @returns {import("p5").Vector} The position vector for the end of the barrel
+     */
+    getBulletPosition() {
+        return p5.Vector.add(this.pos, createVector(cos(this.barrelRot - 90), sin(this.barrelRot - 90)).mult(BARREL.LENGTH));
     }
 
     update() {
@@ -93,7 +97,7 @@ const BULLET = {
 class Bullet {
     /**
      * 
-     * @param {Vector} pos Initial firing position.
+     * @param {import("p5").Vector} pos Initial firing position.
      * @param {number} dir Direction of initial bullet travel in degrees.
      */
     constructor(pos, dir) {
