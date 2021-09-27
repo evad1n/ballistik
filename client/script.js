@@ -12,14 +12,14 @@ function setup() {
 
     cursor(CROSS);
 
-    m = new Maze();
+    let mazeData = genMaze(10, 10);
+
+    m = new Maze(50, 50, mazeData);
     t = new Tank(300, 300, 0, "black");
 }
 
 function draw() {
     background(220);
-
-    ellipse(50, 50, 80, 80);
 
     m.draw();
     t.draw();
