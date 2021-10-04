@@ -42,12 +42,31 @@ class Maze {
             W: 8  // 1000
         };
      */
-    constructor(x, y, cells) {
+    /**
+     * 
+     * @param {*} x Top left x coordinate
+     * @param {*} y Top left y coordinate
+     * @param {*} rows Number of rows
+     * @param {*} cols Number of columns
+     * @param {*} cellSize Size of cells
+     * 
+     * @example
+     * const DIRECTIONS = {
+            N: 1, // 0001
+            E: 2, // 0010
+            S: 4, // 0100
+            W: 8  // 1000
+        };
+     */
+    constructor(x, y, rows, cols, cellSize) {
         this.x = x;
         this.y = y;
+        this.rows = rows;
+        this.cols = cols;
+        this.cellSize = cellSize;
         // Start empty
-        this.cells = Array(2).fill(0).map(() => Array(2).fill(15));
-        this.recursing = Array(2).fill(0).map(() => Array(2).fill(false));
+        this.cells = Array(rows).fill(0).map(() => Array(cols).fill(15));
+        this.recursing = Array(rows).fill(0).map(() => Array(cols).fill(false));
     }
 
     draw() {
@@ -71,20 +90,23 @@ class Maze {
     drawCell(row, col) {
         const cell = this.cells[row][col];
         if (this.recursing[row][col]) {
+            noStroke();
             fill('red');
-            rect(this.x + row * CELL_SIZE, this.y + col * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, this.cellSize);
             fill('white');
         } else if (cell == 15) {
+            noStroke();
             fill('grey');
-            rect(this.x + row * CELL_SIZE, this.y + col * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, this.cellSize);
             fill('white');
         }
 
+        fill('black');
         if (cell & DIRECTIONS.N) {
-            rect(this.x + row * CELL_SIZE, this.y + col * CELL_SIZE, CELL_SIZE, 1);
+            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, 1);
         }
         if (cell & DIRECTIONS.W) {
-            rect(this.x + row * CELL_SIZE, this.y + col * CELL_SIZE, 1, CELL_SIZE);
+            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, 1, this.cellSize);
         }
         // if (cell & DIRECTIONS.S) {
         //     rect(this.x + row * CELL_SIZE, this.y + col * CELL_SIZE + CELL_SIZE, CELL_SIZE, 1);
@@ -94,10 +116,10 @@ class Maze {
         // }
     }
 
-    drawMaze() {
-        this.recursing = Array(2).fill(0).map(() => Array(2).fill(false));
+    drawMaze(timeout) {
+        this.recursing = Array(this.rows).fill(0).map(() => Array(this.cols).fill(false));
 
-        this.asyncCarve(0, 0);
+        this.asyncCarve(0, 0, timeout);
     }
 
     carve(cX, cY) {
@@ -123,9 +145,9 @@ class Maze {
         }
     }
 
-    async asyncCarve(cX, cY) {
+    async asyncCarve(cX, cY, timeout) {
         return new Promise(async (resolve) => {
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, timeout));
             this.recursing[cY][cX] = true;
             // Shuffle for direction
             let dirs = shuffleArray(Object.keys(DIRECTIONS));
@@ -139,24 +161,21 @@ class Maze {
                 // Keep in bounds
                 if (nX >= 0 && nX < this.cells[0].length &&
                     nY >= 0 && nY < this.cells.length) {
-                    console.log(`CURRENT: ${cX}, ${cY}, ${d}: ${this.cells[cY][cX]}`);
-                    console.log(`NEXT: ${nX}, ${nY}: ${this.cells[nY][nX]}`);
                     // If cell is already visited
                     if (this.cells[nY][nX] < 15) continue;
 
                     this.cells[cY][cX] ^= DIRECTIONS[d];
                     this.cells[nY][nX] ^= DIRECTIONS[OPPOSITES[d]];
-                    console.log(DIRECTIONS[d], DIRECTIONS[OPPOSITES[d]]);
 
                     // We must go deeper!
-                    await this.asyncCarve(nX, nY);
+                    await this.asyncCarve(nX, nY, timeout);
 
                 }
                 // Otherwise find a different neighbor
             }
 
             // Exit recursion
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, timeout));
             this.recursing[cY][cX] = false;
             resolve();
         });

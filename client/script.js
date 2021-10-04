@@ -12,9 +12,11 @@ function setup() {
 
     cursor(CROSS);
 
+    fill('white');
+
     // let mazeData = genMaze(10, 10);
 
-    m = new Maze(50, 50);
+    m = new Maze(50, 50, 10, 10, 30);
     t = new Tank(300, 300, 0, "black");
 }
 
@@ -35,5 +37,5 @@ function draw() {
 function mouseClicked() {
     // bullets.push(new Bullet(t.getBulletPosition(), t.barrelRot));
 
-    m.asyncCarve(0, 0);
+    m.drawMaze(100);
 }
