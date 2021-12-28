@@ -1,9 +1,12 @@
+import p5 from 'p5'
+
 const BULLET = {
     DIAMETER: 2,
     SPEED: MOVE_SPEED * 2,
 };
 
 export default class Bullet {
+    pos: p5.Vector;
     /**
      * 
      * @param {import("p5").Vector} pos Initial firing position.
