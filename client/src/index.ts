@@ -1,43 +1,56 @@
 import p5 from 'p5';
 
-let bullets = [];
+import Tank from "@classes/tank";
+import Maze from "@classes/maze";
+import Bullet from "@classes/bullet";
 
-/** @type {Maze} */
-let m;
-/** @type {Tank} */
-let t;
+/**
+ * Global list of active bullets
+ */
+let bullets : Bullet[];
 
-function setup() {
-    angleMode(DEGREES);
+/**
+ * Current mazze
+ */
+let maze: Maze;
+/**
+ * That's you!
+ */
+let player: Tank;
 
-    createCanvas(windowWidth, windowHeight);
-
-    cursor(CROSS);
-
-    fill('white');
-
-    // let mazeData = genMaze(10, 10);
-
-    m = new Maze(50, 50, 10, 10, 30);
-    t = new Tank(300, 300, 0, "black");
-}
-
-function draw() {
-    background(220);
-
-    m.draw();
-    t.draw();
-
-    let p = t.getBulletPosition();
-    circle(p.x, p.y, 3);
-
-    for (const b of bullets) {
-        b.draw();
+const sketchFn = (p: p5) => {
+    p.setup = () => {
+        p.angleMode('degrees');
+        
+        p.createCanvas(p.windowWidth, p.windowHeight);
+        
+        p.cursor("cross");
+        
+        p.fill('white');
+        
+        // let mazeData = genMaze(10, 10);
+        
+        maze = new Maze(50, 50, 10, 10, 30);
+        player = new Tank(p.createVector(300, 300), 0, "black");
+    }
+    
+    p.draw = () => {
+        p.background(220);
+        
+        maze.draw(p);
+        player.draw(p);
+        
+        for (const b of bullets) {
+            b.draw(p);
+        }
+    }
+    
+    p.mouseClicked = () => {
+        // bullets.push(new Bullet(t.getBulletPosition(), t.barrelRot));
+        
+        maze.drawMaze(100);
     }
 }
-
-function mouseClicked() {
-    // bullets.push(new Bullet(t.getBulletPosition(), t.barrelRot));
-
-    m.drawMaze(100);
-}
+    
+    
+let sketch = new p5(sketchFn);

@@ -1,3 +1,5 @@
+import p5 from 'p5';
+
 const CELL_SIZE = 40;
 
 // 15 is all 4 walls
@@ -29,7 +31,7 @@ const OPPOSITES = {
     'W': 'E',
 };
 
-class Maze {
+export default class Maze {
     /**
      * 
      * @param {number[][]} cells A 2D array of bit flags signifying walls
@@ -58,7 +60,7 @@ class Maze {
             W: 8  // 1000
         };
      */
-    constructor(x, y, rows, cols, cellSize) {
+    constructor(x: number, y: number, rows: number, cols: number, cellSize: number) {
         this.x = x;
         this.y = y;
         this.rows = rows;
@@ -69,7 +71,7 @@ class Maze {
         this.recursing = Array(rows).fill(0).map(() => Array(cols).fill(false));
     }
 
-    draw() {
+    draw(p: p5) {
         for (let row = 0; row < this.cells.length; row++) {
             // Bottom row
             if (row == this.cells.length - 1) {
