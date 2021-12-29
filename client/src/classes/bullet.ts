@@ -2,7 +2,7 @@ import p5 from 'p5'
 
 const BULLET = {
     DIAMETER: 2,
-    SPEED: MOVE_SPEED * 2,
+    SPEED: 5,
 };
 
 export default class Bullet{

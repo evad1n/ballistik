@@ -2,6 +2,8 @@ import p5 from 'p5';
 
 const CELL_SIZE = 40;
 
+
+
 // 15 is all 4 walls
 const DIRECTIONS = {
     N: 1, // 0001
@@ -9,6 +11,8 @@ const DIRECTIONS = {
     S: 4, // 0100
     W: 8  // 1000
 };
+
+type Dir = keyof typeof DIRECTIONS;
 
 const DX = {
     N: 0,
@@ -24,14 +28,44 @@ const DY = {
     W: 0
 };
 
-const OPPOSITES = {
+const OPPOSITES: Record<Dir, Dir> = {
     'N': 'S',
-    'S': 'N',
     'E': 'W',
+    'S': 'N',
     'W': 'E',
 };
 
 export default class Maze {
+    /**
+     * Top left x coordinate
+     */
+    x: number
+    /**
+     * Top left y coordinate
+     */
+    y: number
+    /**
+     * Number of rows
+     */
+    rows: number
+    /**
+     * Number of columns
+     */
+    cols: number
+    /**
+     * Size of cells
+     */
+    cellSize: number;
+    /**
+     * 
+     */
+    cells: Array<Array<number>>
+
+    // CHORE: remove when server generates
+    recursing: Array<Array<boolean>>
+
+
+
     /**
      * 
      * @param {number[][]} cells A 2D array of bit flags signifying walls
@@ -46,11 +80,6 @@ export default class Maze {
      */
     /**
      * 
-     * @param {*} x Top left x coordinate
-     * @param {*} y Top left y coordinate
-     * @param {*} rows Number of rows
-     * @param {*} cols Number of columns
-     * @param {*} cellSize Size of cells
      * 
      * @example
      * const DIRECTIONS = {
@@ -78,7 +107,7 @@ export default class Maze {
 
             }
             for (let col = 0; col < this.cells[0].length; col++) {
-                this.drawCell(row, col);
+                this.drawCell(p, row, col);
             }
         }
     }
@@ -89,26 +118,26 @@ export default class Maze {
      * @param {number} row 
      * @param {number} col 
      */
-    drawCell(row, col) {
+    drawCell(p: p5, row: number, col: number) {
         const cell = this.cells[row][col];
         if (this.recursing[row][col]) {
-            noStroke();
-            fill('red');
-            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, this.cellSize);
-            fill('white');
+            p.noStroke();
+            p.fill('red');
+            p.rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, this.cellSize);
+            p.fill('white');
         } else if (cell == 15) {
-            noStroke();
-            fill('grey');
-            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, this.cellSize);
-            fill('white');
+            p.noStroke();
+            p.fill('grey');
+            p.rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, this.cellSize);
+            p.fill('white');
         }
 
-        fill('black');
+        p.fill('black');
         if (cell & DIRECTIONS.N) {
-            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, 1);
+            p.rect(this.x + col * this.cellSize, this.y + row * this.cellSize, this.cellSize, 1);
         }
         if (cell & DIRECTIONS.W) {
-            rect(this.x + col * this.cellSize, this.y + row * this.cellSize, 1, this.cellSize);
+            p.rect(this.x + col * this.cellSize, this.y + row * this.cellSize, 1, this.cellSize);
         }
         // if (cell & DIRECTIONS.S) {
         //     rect(this.x + row * CELL_SIZE, this.y + col * CELL_SIZE + CELL_SIZE, CELL_SIZE, 1);
@@ -118,15 +147,15 @@ export default class Maze {
         // }
     }
 
-    drawMaze(timeout) {
+    drawMaze(timeout: number) {
         this.recursing = Array(this.rows).fill(0).map(() => Array(this.cols).fill(false));
 
         this.asyncCarve(0, 0, timeout);
     }
 
-    carve(cX, cY) {
+    carve(cX: number, cY: number) {
         // Shuffle for direction
-        let dirs = shuffleArray(Object.keys(DIRECTIONS));
+        let dirs = shuffleArray(Object.keys(DIRECTIONS)) as Array<keyof typeof DIRECTIONS>;
 
         for (const d of dirs) {
             // Neighbor
@@ -141,18 +170,18 @@ export default class Maze {
                 this.cells[cY][cX] |= DIRECTIONS[d];
                 this.cells[nY][nX] |= DIRECTIONS[OPPOSITES[d]];
                 // We must go deeper!
-                this.carve(nX, nY, this.cells);
+                this.carve(nX, nY);
             }
             // Otherwise find a different neighbor
         }
     }
 
-    async asyncCarve(cX, cY, timeout) {
+    async asyncCarve(cX: number, cY: number, timeout: number) : Promise<void>{
         return new Promise(async (resolve) => {
             await new Promise(r => setTimeout(r, timeout));
             this.recursing[cY][cX] = true;
             // Shuffle for direction
-            let dirs = shuffleArray(Object.keys(DIRECTIONS));
+                    let dirs = shuffleArray(Object.keys(DIRECTIONS)) as Array<keyof typeof DIRECTIONS>;
 
             for (const d of dirs) {
                 // Neighbor
@@ -189,17 +218,17 @@ export default class Maze {
 
 
 // Dummy
-function genMaze(width, height) {
+function genMaze(width: number, height: number) {
 
     // Start with 0s to indicate not visited
     let cells = Array(width).fill(0).map(() => Array(height).fill(0));
 
-    return carve(0, 0, cells);
+    // return carve(0, 0, cells);
 }
 
 
 
-function shuffleArray(array) {
+function shuffleArray<T>(array: T[]) : T[]{
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];

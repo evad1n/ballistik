@@ -7,7 +7,7 @@ import Bullet from "@classes/bullet";
 /**
  * Global list of active bullets
  */
-let bullets : Bullet[];
+let bullets : Bullet[] = [];
 
 /**
  * Current mazze
@@ -20,7 +20,7 @@ let player: Tank;
 
 const sketchFn = (p: p5) => {
     p.setup = () => {
-        p.angleMode('degrees');
+        p.angleMode("degrees");
         
         p.createCanvas(p.windowWidth, p.windowHeight);
         
